@@ -52,6 +52,12 @@ mp_obj_t mp_obj_new_gen_wrap(mp_obj_t fun) {
 /******************************************************************************/
 /* generator instance                                                         */
 
+#ifndef _MSC_VER
+    #define MP_OBJ_GEN_INSTANCE_STATE_LEN 0
+#else
+    #define MP_OBJ_GEN_INSTANCE_STATE_LEN 1     //can't have zero-sized arrays in a struct
+#endif
+
 typedef struct _mp_obj_gen_instance_t {
     mp_obj_base_t base;
     mp_obj_dict_t *globals;
@@ -62,9 +68,9 @@ typedef struct _mp_obj_gen_instance_t {
     mp_exc_stack_t *exc_sp;
     uint n_state;
     // Variable-length
-    mp_obj_t state[0];
+    mp_obj_t state[MP_OBJ_GEN_INSTANCE_STATE_LEN];
     // Variable-length, never accessed by name, only as (void*)(state + n_state)
-    mp_exc_stack_t exc_state[0];
+    mp_exc_stack_t exc_state[MP_OBJ_GEN_INSTANCE_STATE_LEN];
 } mp_obj_gen_instance_t;
 
 void gen_instance_print(void (*print)(void *env, const char *fmt, ...), void *env, mp_obj_t self_in, mp_print_kind_t kind) {

@@ -3,6 +3,10 @@
 
 #include <limits.h>
 #include <setjmp.h>
+#if defined( _MSC_VER ) && defined( DEBUG )
+    #include <stddef.h>  //for NULL
+    #include <assert.h>  //for assert
+#endif
 
 typedef struct _nlr_buf_t nlr_buf_t;
 struct _nlr_buf_t {
@@ -22,7 +26,9 @@ struct _nlr_buf_t {
     void *regs[10];
 #else
     #define MICROPY_NLR_SETJMP (1)
-    #warning "No native NLR support for this arch, using setjmp implementation"
+    #ifndef _MSC_VER
+        #warning "No native NLR support for this arch, using setjmp implementation"
+    #endif
 #endif
 #endif
 
@@ -33,7 +39,11 @@ struct _nlr_buf_t {
 
 #if MICROPY_NLR_SETJMP
 extern nlr_buf_t *nlr_setjmp_top;
-void nlr_setjmp_jump(void *val) __attribute__((noreturn));
+void nlr_setjmp_jump(void *val)
+#ifndef _MSC_VER
+    __attribute__((noreturn))
+#endif
+    ;
 // nlr_push() must be defined as a macro, because "The stack context will be
 // invalidated if the function which called setjmp() returns."
 #define nlr_push(buf) ((buf)->prev = nlr_setjmp_top, nlr_setjmp_top = (buf), setjmp((buf)->jmpbuf))

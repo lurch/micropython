@@ -1043,11 +1043,19 @@ import_error:
     uint pkg_name_len;
     const char *pkg_name = mp_obj_str_get_data(dest[0], &pkg_name_len);
 
-    char dot_name[pkg_name_len + 1 + qstr_len(name)];
+    const uint dot_name_len = pkg_name_len + 1 + qstr_len(name);
+#ifndef _MSC_VER
+    char dot_name[dot_name_len];
+#else
+    char* dot_name = (char*)malloc(dot_name_len);
+#endif
     memcpy(dot_name, pkg_name, pkg_name_len);
     dot_name[pkg_name_len] = '.';
     memcpy(dot_name + pkg_name_len + 1, qstr_str(name), qstr_len(name));
-    qstr dot_name_q = qstr_from_strn(dot_name, sizeof(dot_name));
+    qstr dot_name_q = qstr_from_strn(dot_name, dot_name_len);
+#ifdef _MSC_VER
+    free(dot_name);
+#endif
 
     mp_obj_t args[5];
     args[0] = MP_OBJ_NEW_QSTR(dot_name_q);
