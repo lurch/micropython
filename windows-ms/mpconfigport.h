@@ -13,6 +13,7 @@
 #define MICROPY_ENABLE_SOURCE_LINE  (1)
 #define MICROPY_FLOAT_IMPL          (MICROPY_FLOAT_IMPL_DOUBLE)
 #define MICROPY_LONGINT_IMPL        (MICROPY_LONGINT_IMPL_MPZ)
+#define MICROPY_INIT_FUNC           init()
 
 #define MICROPY_EXTRA_CONSTANTS { "dummy", 0 } //can't have 0 sized array
 

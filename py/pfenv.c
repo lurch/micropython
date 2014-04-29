@@ -266,7 +266,11 @@ int pfenv_print_float(const pfenv_t *pfenv, mp_float_t f, char fmt, int flags, c
     }
     *fmt_s++ = '.';
     *fmt_s++ = '*';
-    *fmt_s++ = fmt;
+    *fmt_s++ = fmt
+#ifdef _MSC_VER
+        =='F' ? 'f' : fmt //prevent snprintf from returning an empty string for unknown 'F'
+#endif
+    ;
     *fmt_s = '\0';
 
     len = snprintf(buf, sizeof(buf), fmt_buf, prec, f);
