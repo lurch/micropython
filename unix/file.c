@@ -27,6 +27,13 @@ STATIC void fdfile_print(void (*print)(void *env, const char *fmt, ...), void *e
 
 STATIC machine_int_t fdfile_read(mp_obj_t o_in, void *buf, machine_uint_t size, int *errcode) {
     mp_obj_fdfile_t *o = o_in;
+#ifdef _MSC_VER
+    //in the CRT it's an error to read from a closed file descriptor
+    if (o->fd < 0) {
+        *errcode = EBADF;
+        return -1;
+    }
+#endif
     machine_int_t r = read(o->fd, buf, size);
     if (r == -1) {
         *errcode = errno;
@@ -46,6 +53,9 @@ STATIC machine_int_t fdfile_write(mp_obj_t o_in, const void *buf, machine_uint_t
 STATIC mp_obj_t fdfile_close(mp_obj_t self_in) {
     mp_obj_fdfile_t *self = self_in;
     close(self->fd);
+#ifdef _MSC_VER
+    self->fd = -1;
+#endif
     return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(fdfile_close_obj, fdfile_close);
