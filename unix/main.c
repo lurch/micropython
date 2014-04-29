@@ -302,6 +302,17 @@ void pre_process_options(int argc, char **argv) {
     }
 }
 
+#ifdef _MSC_VER
+// TODO: if there's an io.path module this can go there and be used to convert all paths?
+void to_unix_path(char* p) {
+    while (*p!=0) {
+        if (*p=='\\')
+            *p='/';
+        ++p;
+    }
+}
+#endif
+
 int main(int argc, char **argv) {
     volatile int stack_dummy;
     stack_top = (void*)&stack_dummy;
@@ -407,6 +418,9 @@ int main(int argc, char **argv) {
             }
 
             // Set base dir of the script as first entry in sys.path
+#ifdef _MSC_VER
+            to_unix_path(basedir);
+#endif
             char *p = strrchr(basedir, '/');
             path_items[0] = MP_OBJ_NEW_QSTR(qstr_from_strn(basedir, p - basedir));
             free(basedir);
